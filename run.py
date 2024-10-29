@@ -1,5 +1,5 @@
 # 引入 check_feed 和 parse_feed 函数
-from friend_circle_lite.get_info import fetch_and_process_data, sort_articles_by_time, marge_data_from_json_url, marge_errors_from_json_url
+from friend_circle_lite.get_info import fetch_and_process_data, sort_articles_by_time, marge_data_from_json_url, marge_errors_from_json_url, deal_with_large_data
 from friend_circle_lite.get_conf import load_config
 from rss_subscribe.push_article_update import get_latest_articles_from_link, extract_emails_from_issues
 from push_rss_update.send_email import send_emails
@@ -22,10 +22,10 @@ if config["spider_settings"]["enable"]:
         print("合并数据功能开启，从 {marge_json_url} 中获取境外数据并合并".format(marge_json_url=marge_json_url + "/all.json"))
         result = marge_data_from_json_url(result, marge_json_url + "/all.json")
         lost_friends = marge_errors_from_json_url(lost_friends, marge_json_url + "/errors.json")
-        
-    sorted_result = sort_articles_by_time(result)
+    result = deal_with_large_data(result)
+
     with open("all.json", "w", encoding="utf-8") as f:
-        json.dump(sorted_result, f, ensure_ascii=False, indent=2)
+        json.dump(result, f, ensure_ascii=False, indent=2)
     with open("errors.json", "w", encoding="utf-8") as f:
         json.dump(lost_friends, f, ensure_ascii=False, indent=2)
 
